@@ -20,27 +20,27 @@ func main() {
 	// engine
 	r := gin.Default()
 
-	// route
-	v1 := r.Group("/v1", middleware.Auth(), middleware.Auth2())
+	// route grouping
+	v1 := r.Group("/v1", middleware.Auth())
 	{
-		// middleware
-		// 1 auth
-		// 2 monitoring
-		// 3 log
-		// 4 auth
-		// v1.Use(middleware.Auth(), middleware.Auth2())
-
-		// 3, 1 detik middleware 1, 1 detik 2, 1 detik handle
-
-		// 500ms
-		// promoteus, log monitoring
-		// google analytics
-		//
-
-		// goroutine, proses data2
-
 		v1.POST("/data", handler.CreateData) // input data diri baru
 		v1.GET("/data", handler.GetData)     // dapatkan list data diri
+
+		// grouping
+		v1Role := v1.Group("/role", middleware.CheckingRole())
+		{
+			v1Role.POST("/data", handler.CreateData) // v1/role/data  // input data diri baru
+			v1Role.GET("/data", handler.GetData)     //  v1/role/data  dapatkan list data diri
+
+			// get role, bukan admin
+			// phone number: 081xxxxxxxxxxxxx
+			// 							0 2
+
+			// kalau rolenya admin
+			// munculkan semua phone number 081232131313123
+
+		}
+
 		// v1.GET("/data/:id", handler.GetDataById)   // mendapatkan data diri berdasarkan no identitas
 		// v1.PUT("/data/:id", handler.UpdateData)    // update data diri baru
 		// v1.DELETE("/data/:id", handler.DeleteData) // delete data diri

@@ -6,7 +6,7 @@ import (
 )
 
 type IService interface {
-	Get() []model.Data
+	Get(role string) []model.Data
 	GetById(id int) model.Data
 	Update(model.Data) error
 	Delete(id int) error
@@ -23,8 +23,39 @@ func NewService(repository repository.IRepository) IService {
 	}
 }
 
-func (s *Service) Get() []model.Data {
-	return s.Repository.Get()
+func (s *Service) Get(role string) []model.Data {
+	// business logic
+
+	// get data dulu, dari repository
+	data := s.Repository.Get()
+
+	// logic
+	var finalData []model.Data
+
+	for _, dat := range data {
+		if role == "admin" {
+			finalData = append(finalData, dat)
+		} else {
+			// logic untuk mengubah
+			// 0813213123132
+			// 081xxxxxxxxxx
+
+			var securePhoneNumber string
+
+			for i := 0; i < len(dat.PhoneNumber); i++ {
+				if i <= 2 {
+					securePhoneNumber += string(dat.PhoneNumber[i])
+				} else {
+					securePhoneNumber += "x"
+				}
+			}
+
+			dat.PhoneNumber = securePhoneNumber
+			finalData = append(finalData, dat)
+		}
+	}
+
+	return finalData
 }
 
 func (s *Service) GetById(id int) model.Data {

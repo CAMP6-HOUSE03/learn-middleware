@@ -8,14 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type IService interface {
-	Get() []model.Data
-	GetById(id int) model.Data
-	Update(model.Data) error
-	Delete(id int) error
-	Create(model.Data) error
-}
-
 type IHandler interface {
 	CreateData(c *gin.Context)
 	GetData(c *gin.Context)
@@ -66,8 +58,10 @@ func (h *Handler) CreateData(c *gin.Context) {
 }
 
 func (h *Handler) GetData(c *gin.Context) {
+	role, _ := c.Get("role")
+
 	// ngedapetin data
-	datas := h.Service.Get()
+	datas := h.Service.Get(role.(string))
 
 	c.JSON(http.StatusOK, datas)
 }

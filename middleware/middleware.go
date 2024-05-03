@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,21 +12,24 @@ import (
 // fungsi middleware gin
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 1 detik
+
 		t := time.Now()
 
 		username := c.GetHeader("username")
+		password := c.GetHeader("password")
 
 		// pengecekan 1
-		if username == "" {
+		if username == "" || password == "" {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": "for authentication, please provide username",
+				"error": "for authentication, please provide username and password",
 			})
 			return
 		}
 
-		if username != "admin" {
+		if username != "admin" || password != "1234" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid username",
+				"error": "invalid username and password",
 			})
 			return
 		}
@@ -43,24 +47,33 @@ func Auth() gin.HandlerFunc {
 	}
 }
 
-func Auth2() gin.HandlerFunc {
+var roles = []string{"admin", "user", "guest"}
+
+func CheckingRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		password := c.GetHeader("password")
+		role := c.GetHeader("role")
 
-		if password == "" {
+		if role == "" {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": "for authentication, please provide password",
+				"error": "for authorization, please provide role",
 			})
 			return
 		}
 
-		if password != "1234" {
+		if !slices.Contains(roles, role) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid password",
+				"error": "invalid role",
 			})
 			return
 		}
+
+		// gin Keys
+		c.Set("role", role)
+
+		// mendapatkan data role dari header, setelah di check
+		// nanti hasilnya dikirim ke handler
 
 		c.Next()
+
 	}
 }
